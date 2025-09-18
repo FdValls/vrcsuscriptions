@@ -1,6 +1,6 @@
 "use server";
 
-import { mpToken, planA, planB, planC, planURL } from "@/config/data";
+import { mpToken, planURL } from "@/config/data";
 import { PlanRequestBody } from "@/interfaces/PlanRequestBody";
 
 
@@ -78,26 +78,3 @@ export const createPlanWithFreeAmount = async (
         throw error;
     }
 };
-
-
-export async function getPlanByIdWithPlanA() {
-    if (!planA) {
-        throw new Error("Plan A no está configurado");
-    }
-    return await getPlanById(planA);
-}
-export async function getPlanByIdWithPlanB() {
-    if (!planB) {
-        throw new Error("Plan A no está configurado");
-    }
-    return await getPlanById(planB);
-}
-export async function getPlanByIdWithPlanC() {
-    if (!planC) {
-        throw new Error("Plan A no está configurado");
-    }
-    return await getPlanById(planC);
-}
-export async function createPlan(body: PlanRequestBody) {
-    return await createPlanWithFreeAmount(body);
-}
