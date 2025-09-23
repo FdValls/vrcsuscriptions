@@ -9,7 +9,7 @@ import {
   Radio,
   Button,
 } from "@heroui/react";
-import { PlanRequestBody } from "@/interfaces/PlanRequestBody";
+import { createSuscription } from "@/actions/plans";
 
 const options = [
   "General",
@@ -61,12 +61,7 @@ export default function SubscriptionForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const getId = () =>
-      new Promise<string>((resolve) => {
-        setTimeout(() => resolve("mocked-id-12345"), 500);
-      });
-
-    // Validación de monto libre
+    // Validación monto libre
     if (selectedAmount === "custom") {
       const amount = Number(customAmount);
       if (isNaN(amount) || amount < 15001) {
@@ -75,52 +70,35 @@ export default function SubscriptionForm() {
       }
     }
 
-    const mockCustomPlanBody = {
-      reason: "VRC Suscripción Mensual",
+    // Configurar fechas
+    const startDate = new Date();
+    const endDate = addMonths(startDate, 12); // ajusta según tu lógica
+
+    const body = {
+      reason: "Test 1",
+      external_reference: "YG-1234",
+      payer_email: formData.email,
       auto_recurring: {
         frequency: 1,
         frequency_type: "months",
-        start_date: startDateISO,
-        end_date: endDateISO,
-        repetitions: 12,
-        billing_day: startDate.getDate(), // día del mes
-        billing_day_proportional: false,
-        free_trial: {
-          frequency: 1,
-          frequency_type: "months",
-        },
-        transaction_amount:
-          selectedAmount === "custom"
-            ? Number(customAmount)
-            : Number(selectedAmount), // usa lo que venga del form o fallback
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
+        transaction_amount: Number(
+          selectedAmount === "custom" ? customAmount : selectedAmount
+        ),
         currency_id: "ARS",
       },
-      payment_methods_allowed: {
-        payment_types: [{ id: "credit_card" }],
-        payment_methods: [{ id: "bolbradesco" }],
-      },
-      back_url: "https://www.yoursite.com",
-    } as PlanRequestBody;
-
-    const formValues = {
-      ...formData,
-      whoToldYou: value,
-      selectedAmount:
-        selectedAmount === "custom"
-          ? Number(customAmount)
-          : Number(selectedAmount)
+      back_url: "https://www.mercadopago.com.ar",
     };
 
-    // Espera el id de la promesa
-    const id = await getId();
-
-    // Crea el objeto final
-    const submissionObject = {
-      ...formValues,
-      id,
-    };
-
-    console.log("Objeto final:", submissionObject);
+    try {
+      const result = await createSuscription(body);
+      console.log("Respuesta MercadoPago:", result);
+      // Aquí puedes agregar lógica adicional, como redirigir
+    } catch (error) {
+      console.error("Error en la suscripción:", error);
+      alert("Hubo un error al crear la suscripción");
+    }
   };
 
   const inputClasses = {

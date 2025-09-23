@@ -1,50 +1,24 @@
 "use server";
 
 import { mpToken, planURL } from "@/config/data";
-import { PlanRequestBody } from "@/interfaces/PlanRequestBody";
+import { SuscriptionRequestBody } from "@/interfaces/PlanRequestBody";
 
-
-export const getPlanById = async (planId: string): Promise<unknown> => {
-
-    const url = `${planURL}/${planId}`;
-    const requestHeaders = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${mpToken}`,
-    };
-
-    return new Promise((resolve, reject) => {
-        fetch(url, {
-            method: "GET",
-            headers: requestHeaders,
-        })
-            .then(async (response) => {
-                if (!response.ok) {
-                    // Get more detailed error information
-                    let errorMessage = `HTTP error! status: ${response.status}`;
-                    try {
-                        const errorBody = await response.text();
-                        if (errorBody) {
-                            errorMessage += ` - ${errorBody}`;
-                        }
-                    } catch (e) {
-                        // Ignore error parsing error body
-                    }
-
-                    console.error(`[ErrorGetPlan] ${errorMessage}`);
-                    throw new Error(errorMessage);
-                }
-                const data = await response.json();
-                resolve(data);
-            })
-            .catch((error) => {
-                console.error("[UserInfoService] Error fetching user info:", error);
-                reject(error);
-            });
-    });
-};
-export const createPlanWithFreeAmount = async (
-    body: PlanRequestBody,
-): Promise<unknown> => {
+export const createSuscription = async (
+    body: {
+        reason: string;
+        external_reference: string;
+        payer_email: string;
+        auto_recurring: {
+            frequency: number;
+            frequency_type: string;
+            start_date: string;
+            end_date: string;
+            transaction_amount: number;
+            currency_id: string;
+        };
+        back_url: string;
+    }
+): Promise<SuscriptionRequestBody> => {
     const url = `${planURL}`;
     const requestHeaders = {
         "Content-Type": "application/json",
