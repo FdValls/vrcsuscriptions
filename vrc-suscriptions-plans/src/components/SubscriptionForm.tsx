@@ -93,7 +93,7 @@ export default function SubscriptionForm() {
       });
 
       // Aquí puedes agregar lógica adicional, como redirigir
-      const url = result.init_point; // Asumiendo que result.init_point contiene la URL
+      const url = result.init_point;
 
       // Abrir en una nueva pestaña o ventana
       window.open(url, "_blank");
