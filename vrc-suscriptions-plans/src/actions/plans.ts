@@ -1,10 +1,11 @@
 "use server";
 
 import { mpToken, planURL } from "@/config/data";
-import { SuscriptionRequestBody } from "@/interfaces/PlanRequestBody";
+import { SuscriptionRequestBody } from "@/interfaces/SuscriptionRequestBody";
+import { SuscriptionResponse } from "@/interfaces/SuscriptionResponse";
 
 export const createSuscription = async (
-    body: {
+    body: SuscriptionRequestBody & {
         reason: string;
         external_reference: string;
         payer_email: string;
@@ -18,7 +19,7 @@ export const createSuscription = async (
         };
         back_url: string;
     }
-): Promise<SuscriptionRequestBody> => {
+): Promise<SuscriptionResponse> => {
     const url = `${planURL}`;
     const requestHeaders = {
         "Content-Type": "application/json",
