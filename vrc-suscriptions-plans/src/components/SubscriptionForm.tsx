@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Card,
   CardHeader,
@@ -25,7 +24,6 @@ const options = [
 
 export default function SubscriptionForm() {
   const [selectedAmount, setSelectedAmount] = useState("20000");
-  const router = useRouter();
   const [customAmount, setCustomAmount] = useState("");
   const [formData, setFormData] = useState({
     name: "Fernando",
@@ -95,7 +93,10 @@ export default function SubscriptionForm() {
       });
 
       // Aquí puedes agregar lógica adicional, como redirigir
-      router.push(result.init_point);
+      const url = result.init_point; // Asumiendo que result.init_point contiene la URL
+
+      // Abrir en una nueva pestaña o ventana
+      window.open(url, "_blank");
     } catch (error) {
       console.error("Error en la suscripción:", error);
       alert("Hubo un error al crear la suscripción");
