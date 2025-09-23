@@ -4,7 +4,7 @@ export interface SuscriptionRequestBody {
   payer_email: string;
   auto_recurring: {
     frequency: number;
-    frequency_type: "days" | "months";
+    frequency_type: string;
     start_date: string;
     end_date: string;
     transaction_amount: number;

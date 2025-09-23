@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardHeader,
@@ -10,6 +11,7 @@ import {
   Button,
 } from "@heroui/react";
 import { createSuscription } from "@/actions/plans";
+import { SuscriptionRequestBody } from "@/interfaces/SuscriptionRequestBody";
 
 const options = [
   "General",
@@ -23,6 +25,7 @@ const options = [
 
 export default function SubscriptionForm() {
   const [selectedAmount, setSelectedAmount] = useState("20000");
+  const router = useRouter();
   const [customAmount, setCustomAmount] = useState("");
   const [formData, setFormData] = useState({
     name: "Fernando",
@@ -50,14 +53,6 @@ export default function SubscriptionForm() {
     return result;
   };
 
-  // Definir las fechas dinámicamente
-  const startDate = new Date();
-  const endDate = addMonths(startDate, 12); // por ejemplo, 12 meses
-
-  // Formatear fechas en formato ISO string si es necesario
-  const startDateISO = startDate.toISOString();
-  const endDateISO = endDate.toISOString();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -76,7 +71,7 @@ export default function SubscriptionForm() {
 
     const body = {
       reason: "Test 1",
-      external_reference: "YG-1234",
+      external_reference: "VRC-1234",
       payer_email: formData.email,
       auto_recurring: {
         frequency: 1,
@@ -89,12 +84,18 @@ export default function SubscriptionForm() {
         currency_id: "ARS",
       },
       back_url: "https://www.mercadopago.com.ar",
-    };
+    } as SuscriptionRequestBody;
 
     try {
       const result = await createSuscription(body);
-      console.log("Respuesta MercadoPago:", result);
+      // console.log("Respuesta MercadoPago:", result);
+      console.log("Respuesta a enviar al sheet:", {
+        form_data: { ...formData },
+        id_suscription_: result.subscription_id,
+      });
+
       // Aquí puedes agregar lógica adicional, como redirigir
+      router.push(result.init_point);
     } catch (error) {
       console.error("Error en la suscripción:", error);
       alert("Hubo un error al crear la suscripción");
