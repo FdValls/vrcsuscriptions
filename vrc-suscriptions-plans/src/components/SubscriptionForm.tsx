@@ -25,15 +25,37 @@ const options = [
 export default function SubscriptionForm() {
   const [selectedAmount, setSelectedAmount] = useState("20000");
   const [customAmount, setCustomAmount] = useState("");
+  const [value, setValue] = React.useState("");
   const [formData, setFormData] = useState({
     name: "Fernando",
-    email: "fernandodanielvals@gmail.com",
+    email: "",
     phone: "1123029425",
     howDidYouKnow: "evento",
     whoToldYou: "Carlos Ramallo",
   });
 
-  const [value, setValue] = React.useState("");
+  async function enviarDatos() {
+    const dataToSend = {
+      data: {
+        nombre: "Lucio Valls",
+        email: `${formData.email}`,
+        edad: Math.floor(Math.random() * 100),
+      },
+    };
+
+    const response = await fetch("/api/save-to-sheet", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache", // Evitar caché
+      },
+      cache: "no-store", // Evitar caché de Next.js
+      body: JSON.stringify(dataToSend),
+    });
+
+    const result = await response.json();
+    console.log(result);
+  }
 
   const handleChange = (e: {
     target: { value: React.SetStateAction<string> };
@@ -256,13 +278,22 @@ export default function SubscriptionForm() {
         </div>
 
         {/* Botón de envío */}
-        <Button
-          type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 text-lg rounded-lg transition-colors"
-          size="lg"
-        >
-          Enviar y continuar a Mercado Pago
-        </Button>
+        <div className="flex justify-center mt-4 gap-4">
+          <Button
+            type="submit"
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 text-lg rounded-lg transition-colors"
+            size="lg"
+          >
+            Enviar y continuar a Mercado Pago
+          </Button>
+          <Button
+            onClick={enviarDatos}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 text-lg rounded-lg transition-colors"
+            size="lg"
+          >
+            Test google sheet data
+          </Button>
+        </div>
       </form>
     </Card>
   );
