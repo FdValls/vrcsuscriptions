@@ -17,9 +17,10 @@ export async function POST(req: Request) {
 
     console.log("Body completo recibido:", JSON.stringify(body, null, 2));
 
-    const missingVars = Object.keys(requiredVars).filter(
-      (key) => !requiredVars[key]
-    );
+    const missingVars = Object.entries(requiredVars)
+      .filter(([_, value]) => !value)
+      .map(([key]) => key);
+
     if (missingVars.length > 0) {
       throw new Error(`Faltan variables de entorno: ${missingVars.join(", ")}`);
     }
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
     const credentials = {
       type: "service_account",
       project_id: process.env.GOOGLE_PROJECT_ID,
-      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
       client_email: process.env.GOOGLE_CLIENT_EMAIL,
     };
 
@@ -58,7 +59,6 @@ export async function POST(req: Request) {
     const dataWithTimestamp = {
       ...data,
       timestamp: new Date().toISOString(),
-      random: Math.floor(Math.random() * 10000), // Número aleatorio para verificar
     };
 
     const values = Object.values(dataWithTimestamp);
