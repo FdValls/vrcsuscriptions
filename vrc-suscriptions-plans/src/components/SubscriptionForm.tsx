@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { Card, CardHeader, Input, Button } from "@heroui/react";
-import { createSuscription } from "@/actions/plans";
 import { SuscriptionRequestBody } from "@/interfaces/SuscriptionRequestBody";
 import RadioGroupCustom from "./RadioGroupCustom";
 import ButtonSend from "./ButtonSend";
@@ -82,7 +81,13 @@ export default function SubscriptionForm() {
       };
 
       // 1) Crear suscripción en Mercado Pago
-      const result = await createSuscription(body);
+      const result = await fetch("/api/create-suscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }).then((res) => res.json());
+
+      console.log("✅ Suscripción creada en MP:", result);
 
       // 2) Enviar datos al Google Sheet
       await fetch("/api/save-to-sheet", {
