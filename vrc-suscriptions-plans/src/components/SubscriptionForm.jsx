@@ -69,7 +69,7 @@ export default function SubscriptionForm() {
       const startDate = new Date();
       const endDate = addMonths(startDate, 12);
 
-      const body = {
+      const bodyForSuscription = {
         reason: "Test 1",
         external_reference: "VRC-1234",
         payer_email: formData.email,
@@ -87,15 +87,25 @@ export default function SubscriptionForm() {
       };
 
       // 1) Crear suscripción en Mercado Pago
-      const result = await fetch("/api/create-suscription", {
+      const res = await fetch("/api/create-suscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      }).then((res) => res.json());
+        body: JSON.stringify(bodyForSuscription),
+      });
+
+      // acá todavía no parseamos
+      const data = await res.json();
+
+      // si falló la request, manejo el error
+      if (!res.ok) {
+        console.error("❌", data.error);
+
+        alert(`❌ ${data.error}`);
+        setIsLoading(false);
+        return; // 👈 importante cortar acá
+      }
 
       const { whoToldYouCustom, whoToldYou, ...restFormData } = formData;
-
-      console.log("result: ", result)
 
       // 2) Enviar datos al Google Sheet
       await fetch("/api/save-to-sheet", {
@@ -107,18 +117,21 @@ export default function SubscriptionForm() {
             // ✅ Corregido: verifica si whoToldYou es "Otro"
             whoToldYou: whoToldYou === "Otro" ? whoToldYouCustom : whoToldYou,
             monto: selectedAmount === "custom" ? customAmount : selectedAmount,
-            id_suscription: result.subscription_id,
+            id_suscription: data.subscription_id,
           },
         }),
       });
 
       console.log("✅ Suscripción creada y datos enviados al sheet");
 
+      //Pequeño delay para que el usuario vea el cambio de texto en el botón
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 5000);
+      
       // 3) Abrir checkout de MP
-      window.open(result.init_point, "_blank");
-
+      window.open(data.init_point, "_blank");
       // Resetear formulario
-      setIsLoading(false);
       setFormData({
         name: "",
         email: "",
@@ -131,8 +144,9 @@ export default function SubscriptionForm() {
       setSelectedAmount("20000");
       setCustomAmount("");
     } catch (error) {
-      console.error("❌ Error en la suscripción:", error);
+      console.error("❌ Error en la suscripción:");
       alert("Hubo un error al crear la suscripción");
+      setIsLoading(false);
     }
   };
 

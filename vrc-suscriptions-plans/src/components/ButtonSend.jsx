@@ -34,15 +34,8 @@ export default function ButtonSend({ isLoading, handleSubmit }) {
             </svg>
           }
         >
-          Enviar y continuar a Mercado Pago
+          {!isLoading ? "Enviar y continuar a Mercado Pago" : "Redireccionando a Mercado Pago..."}
         </Button>
-        {/* <Button
-            isLoading={true}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 text-lg rounded-lg transition-colors"
-            size="lg"
-          >
-            Test google sheet data
-          </Button> */}
       </div>
     </>
   );

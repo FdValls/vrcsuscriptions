@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const body: SuscriptionRequestBody = await req.json();
 
   try {
-     const url = `${planURL}`;
+    const url = `${planURL}`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -29,13 +29,20 @@ export async function POST(req: Request) {
         // ignore parse errors
       }
       console.error(`[ErrorCreatePlan] ${errorMessage}`);
-      return NextResponse.json({ error: errorMessage }, { status: response.status });
+      // return NextResponse.json({ error: errorMessage }, { status: response.status });
+      return NextResponse.json(
+        { error: "Error creando suscripción revise los datos ingresados" },
+        { status: 404 }
+      );
     }
 
     const data: SuscriptionResponse = await response.json();
     return NextResponse.json(data);
   } catch (error) {
     console.error("[CreatePlanService] Error creating plan:", error);
-    return NextResponse.json({ error: "Error creando suscripción" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error creando suscripción" },
+      { status: 500 }
+    );
   }
 }
