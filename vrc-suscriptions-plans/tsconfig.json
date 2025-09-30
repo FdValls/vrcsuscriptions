@@ -22,6 +22,19 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "global.d.ts",
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "src/components/ButtonSend.jsx",
+    "src/components/LandingHeader.jsx",
+    "src/components/RadioGroupCustom.jsx",
+    "src/components/SubscriptionForm.jsx",
+    "src/app/page.jsx",
+    "src/components/SelectCustom.jsx",
+    "src/components/InputsGroup.jsx"
+  ],
   "exclude": ["node_modules"]
 }
