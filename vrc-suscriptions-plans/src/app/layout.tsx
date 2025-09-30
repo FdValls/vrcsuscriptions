@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Socio Solidario · Virreyes Rugby Club v2",
+  title: "Socio Solidario · Virreyes Rugby Club",
   description: "Virreyes Suscription App",
 };
 

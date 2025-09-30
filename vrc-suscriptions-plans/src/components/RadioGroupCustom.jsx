@@ -1,4 +1,5 @@
 import { Input, Radio, RadioGroup } from "@heroui/react";
+import inputWithSelect from "./utils/styles/inputWithSelect";
 
 export default function RadioGroupCustom({
   value: selectedAmount,
@@ -89,11 +90,7 @@ export default function RadioGroupCustom({
             variant="bordered"
             size="lg"
             className="w-full text-center"
-            classNames={{
-              input: "bg-white text-black text-end",
-              inputWrapper:
-                "bg-white border-gray-300 focus-within:border-green-500",
-            }}
+            classNames={inputWithSelect}
             required
           />
           {customAmount && Number(customAmount) <= 14999 && (
