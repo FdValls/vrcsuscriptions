@@ -90,7 +90,7 @@ export default function RadioGroupCustom({
             size="lg"
             className="w-full text-center"
             classNames={{
-              input: "bg-white text-black",
+              input: "bg-white text-black text-end",
               inputWrapper:
                 "bg-white border-gray-300 focus-within:border-green-500",
             }}
