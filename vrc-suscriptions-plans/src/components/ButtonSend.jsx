@@ -1,23 +1,16 @@
 import { Button } from "@heroui/react";
 
-interface ButtonSendProps {
-  isLoading: boolean;
-  handleSubmit: () => Promise<void>;
-}
-
-export default function ButtonSend({
-  isLoading,
-  handleSubmit,
-}: ButtonSendProps) {
+export default function ButtonSend({ isLoading, handleSubmit }) {
   return (
     <>
       {/* Botón de envío */}
       <div className="flex justify-center mt-4 gap-4">
         <Button
+          type="button"
           isLoading={isLoading}
           color="secondary"
           onPress={handleSubmit}
-          className="flex gap-[1rem] w-[60%] bg-green-600 hover:bg-green-700 text-white font-semibold py-4 text-lg rounded-lg transition-colors justify-space"
+          className="flex gap-[1rem] w-[60%] bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 text-lg rounded-lg transition-colors justify-space"
           spinner={
             <svg
               className="animate-spin h-5 w-5 text-current"
@@ -45,7 +38,7 @@ export default function ButtonSend({
         </Button>
         {/* <Button
             isLoading={true}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 text-lg rounded-lg transition-colors"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 text-lg rounded-lg transition-colors"
             size="lg"
           >
             Test google sheet data

@@ -15,8 +15,6 @@ export async function POST(req: Request) {
       GOOGLE_SHEET_ID: process.env.GOOGLE_SHEET_ID,
     };
 
-    console.log("Body completo recibido:", JSON.stringify(body, null, 2));
-
     const missingVars = Object.entries(requiredVars)
       .filter(([_, value]) => !value)
       .map(([key]) => key);
