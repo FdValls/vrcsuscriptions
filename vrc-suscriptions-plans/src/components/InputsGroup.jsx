@@ -1,13 +1,10 @@
 import { Input } from "@heroui/react";
 import inputClasses from "./utils/styles/inputClasses";
 
-export default function InputsGroup({
-  formData,
-  handleInputChange,
-}) {
+export default function InputsGroup({ formData, handleInputChange }) {
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1  gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
             Nombre y apellido <span className="text-red-500">*</span>
@@ -39,12 +36,13 @@ export default function InputsGroup({
       </div>
 
       {/* Teléfono y Cómo conociste */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
             Celular <span className="text-red-500">*</span>
           </label>
           <Input
+            type="Number"
             placeholder="Ingresá tu número de celular"
             value={formData.phone}
             onChange={(e) => handleInputChange("phone", e.target.value)}
@@ -54,7 +52,7 @@ export default function InputsGroup({
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
+        {/* <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
             ¿Cómo conociste VRC? <span className="text-red-500">*</span>
           </label>
@@ -66,7 +64,7 @@ export default function InputsGroup({
             classNames={inputClasses}
             required
           />
-        </div>
+        </div> */}
       </div>
     </>
   );

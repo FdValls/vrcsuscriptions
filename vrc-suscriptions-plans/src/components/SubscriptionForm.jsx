@@ -16,24 +16,10 @@ export default function SubscriptionForm() {
     name: "",
     email: "",
     phone: "",
-    howDidYouKnow: "",
+    // howDidYouKnow: "",
     whoToldYou: "General",
     whoToldYouCustom: "",
   });
-
-  // useEffect(() => {
-  //   setIsLoading(false);
-  //   setFormData({
-  //     name: "",
-  //     email: "",
-  //     phone: "",
-  //     howDidYouKnow: "",
-  //     whoToldYou: "",
-  //   });
-  //   setSelectedAmount("20000");
-  //   setCustomAmount("");
-  //   setValue("");
-  // }, []);
 
   const handleChange = (e) => {
     setValue(e.target.value);
@@ -59,7 +45,7 @@ export default function SubscriptionForm() {
         !formData.name ||
         !formData.email ||
         !formData.phone ||
-        !formData.howDidYouKnow ||
+        // !formData.howDidYouKnow ||
         !formData.whoToldYou ||
         (formData.whoToldYou === "Otro" && !formData.whoToldYouCustom) ||
         (selectedAmount === "custom" && !customAmount)
@@ -109,6 +95,8 @@ export default function SubscriptionForm() {
 
       const { whoToldYouCustom, whoToldYou, ...restFormData } = formData;
 
+      console.log("result: ", result)
+
       // 2) Enviar datos al Google Sheet
       await fetch("/api/save-to-sheet", {
         method: "POST",
@@ -135,7 +123,7 @@ export default function SubscriptionForm() {
         name: "",
         email: "",
         phone: "",
-        howDidYouKnow: "",
+        // howDidYouKnow: "",
         whoToldYou: "General",
         whoToldYouCustom: "",
       });
