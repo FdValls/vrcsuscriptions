@@ -70,7 +70,7 @@ export default function SubscriptionForm() {
       const endDate = addMonths(startDate, 12);
 
       const bodyForSuscription = {
-        reason: "Test 1",
+        reason: "Virreyes Rugby Club",
         external_reference: "VRC-1234",
         payer_email: formData.email,
         auto_recurring: {
