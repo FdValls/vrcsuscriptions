@@ -76,8 +76,8 @@ export default function SubscriptionForm() {
         auto_recurring: {
           frequency: 1,
           frequency_type: "months",
-          start_date: startDate.toISOString(),
-          end_date: endDate.toISOString(),
+          // start_date: startDate.toISOString(),
+          // end_date: endDate.toISOString(),
           transaction_amount: Number(
             selectedAmount === "custom" ? customAmount : selectedAmount
           ),
