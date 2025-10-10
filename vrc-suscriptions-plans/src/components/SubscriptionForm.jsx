@@ -40,12 +40,11 @@ export default function SubscriptionForm() {
     setIsLoading(true);
 
     try {
-      // Validación campos requeridos
+      // ✅ Validaciones básicas
       if (
         !formData.name ||
         !formData.email ||
         !formData.phone ||
-        // !formData.howDidYouKnow ||
         !formData.whoToldYou ||
         (formData.whoToldYou === "Otro" && !formData.whoToldYouCustom) ||
         (selectedAmount === "custom" && !customAmount)
@@ -55,7 +54,6 @@ export default function SubscriptionForm() {
         return;
       }
 
-      // Validación monto libre
       if (selectedAmount === "custom") {
         const amount = Number(customAmount);
         if (isNaN(amount) || amount <= 14999) {
@@ -65,56 +63,49 @@ export default function SubscriptionForm() {
         }
       }
 
-      // Configurar fechas
-      const startDate = new Date();
-      const endDate = addMonths(startDate, 12);
+      // 🔍 Detectar dispositivo o webview
+      const ua = navigator.userAgent.toLowerCase();
+      const isIphone = /iphone|ipad|ipod/.test(ua);
+      const isWebView = /fbav|instagram|line|twitter/.test(ua);
 
-      const bodyForSuscription = {
-        reason: "Virreyes Rugby Club",
-        external_reference: "VRC-1234",
-        payer_email: formData.email,
-        auto_recurring: {
-          frequency: 1,
-          frequency_type: "months",
-          // start_date: startDate.toISOString(),
-          // end_date: endDate.toISOString(),
-          transaction_amount: Number(
-            selectedAmount === "custom" ? customAmount : selectedAmount
-          ),
-          currency_id: "ARS",
-        },
-        back_url: "https://www.mercadopago.com.ar",
-      };
-
-      // 1) Crear suscripción en Mercado Pago
+      // ✅ Crear suscripción
       const res = await fetch("/api/create-suscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bodyForSuscription),
+        body: JSON.stringify({
+          reason: "Virreyes Rugby Club",
+          external_reference: "VRC-1234",
+          payer_email: formData.email,
+          auto_recurring: {
+            frequency: 1,
+            frequency_type: "months",
+            transaction_amount: Number(
+              selectedAmount === "custom" ? customAmount : selectedAmount
+            ),
+            currency_id: "ARS",
+          },
+          back_url: "https://www.mercadopago.com.ar",
+        }),
       });
 
-      // acá todavía no parseamos
       const data = await res.json();
 
-      // si falló la request, manejo el error
-      if (!res.ok) {
-        console.error("❌", data.error);
-
-        alert(`❌ ${data.error}`);
+      if (!res.ok || !data?.init_point) {
+        console.error("❌ Error al crear suscripción:", data?.error || data);
+        alert(`❌ ${data?.error || "Hubo un error al crear la suscripción"}`);
         setIsLoading(false);
-        return; // 👈 importante cortar acá
+        return;
       }
 
+      // ✅ Enviar datos a la Sheet
       const { whoToldYouCustom, whoToldYou, ...restFormData } = formData;
 
-      // 2) Enviar datos al Google Sheet
       await fetch("/api/save-to-sheet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data: {
             ...restFormData,
-            // ✅ Corregido: verifica si whoToldYou es "Otro"
             whoToldYou: whoToldYou === "Otro" ? whoToldYouCustom : whoToldYou,
             monto: selectedAmount === "custom" ? customAmount : selectedAmount,
             id_suscription: data.subscription_id,
@@ -124,27 +115,32 @@ export default function SubscriptionForm() {
 
       console.log("✅ Suscripción creada y datos enviados al sheet");
 
-      //Pequeño delay para que el usuario vea el cambio de texto en el botón
+      // 🕒 Mostrar loading unos instantes (solo para UX)
       setTimeout(() => {
+        // ✅ Abrir el link recién cuando ya existe el init_point
+        if (isIphone || isWebView) {
+          // Safari o WebView → redirigir misma pestaña
+          window.location.href = data.init_point;
+        } else {
+          // Desktop / Android → abrir nueva pestaña
+          window.open(data.init_point, "_blank");
+        }
+
+        // 🔄 Resetear formulario y estado
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          whoToldYou: "General",
+          whoToldYouCustom: "",
+        });
+        setSelectedAmount("20000");
+        setCustomAmount("");
+        setValue("");
         setIsLoading(false);
-      }, 5000);
-      
-      // 3) Abrir checkout de MP
-      window.open(data.init_point, "_blank");
-      // Resetear formulario
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        // howDidYouKnow: "",
-        whoToldYou: "General",
-        whoToldYouCustom: "",
-      });
-      setValue("");
-      setSelectedAmount("20000");
-      setCustomAmount("");
+      }, 1200); // 🕒 Delay de 1.2 segundos solo para mostrar el spinner
     } catch (error) {
-      console.error("❌ Error en la suscripción:");
+      console.error("❌ Error en la suscripción:", error);
       alert("Hubo un error al crear la suscripción");
       setIsLoading(false);
     }
