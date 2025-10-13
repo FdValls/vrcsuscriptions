@@ -6,6 +6,7 @@ import RadioGroupCustom from "./RadioGroupCustom";
 import ButtonSend from "./ButtonSend";
 import InputsGroup from "./InputsGroup";
 import SelectCustom from "./SelectCustom";
+import { validateForm } from "./utils/validation/formSchema";
 
 export default function SubscriptionForm() {
   const [selectedAmount, setSelectedAmount] = useState("20000");
@@ -17,9 +18,10 @@ export default function SubscriptionForm() {
     email: "",
     phone: "",
     // howDidYouKnow: "",
-    whoToldYou: "General",
+    whoToldYou: "",
     whoToldYouCustom: "",
   });
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     setValue(e.target.value);
@@ -27,6 +29,12 @@ export default function SubscriptionForm() {
   };
 
   const handleInputChange = (field, value) => {
+    // clear field-level error when user starts typing
+    setErrors((prev) => {
+      const copy = { ...prev };
+      if (copy[field]) delete copy[field];
+      return copy;
+    });
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -40,19 +48,23 @@ export default function SubscriptionForm() {
     setIsLoading(true);
 
     try {
-      // ✅ Validaciones básicas
-      if (
-        !formData.name ||
-        !formData.email ||
-        !formData.phone ||
-        !formData.whoToldYou ||
-        (formData.whoToldYou === "Otro" && !formData.whoToldYouCustom) ||
-        (selectedAmount === "custom" && !customAmount)
-      ) {
-        alert("Por favor, completá todos los campos requeridos");
+      // Validate whole form with Zod schema
+      const payload = {
+        ...formData,
+        selectedAmount: selectedAmount,
+        customAmount: customAmount,
+      };
+
+      const { valid, errors: validationErrors } = validateForm(payload);
+
+      if (!valid) {
+        setErrors(validationErrors);
         setIsLoading(false);
         return;
       }
+
+      // Clear errors when validation passes
+      setErrors({});
 
       if (selectedAmount === "custom") {
         const amount = Number(customAmount);
@@ -131,7 +143,7 @@ export default function SubscriptionForm() {
           name: "",
           email: "",
           phone: "",
-          whoToldYou: "General",
+          whoToldYou: "",
           whoToldYouCustom: "",
         });
         setSelectedAmount("20000");
@@ -147,18 +159,19 @@ export default function SubscriptionForm() {
   };
 
   return (
-    <Card className="w-full max-w-3xl mx-auto bg-white shadow-lg border border-gray-200 my-8">
+    <Card className="w-full max-w-3xl max-h-full mx-auto bg-white shadow-lg border border-gray-200 my-8">
       <CardHeader className="pb-4 pt-6 px-6 md:px-8 justify-center">
         <h2 className="text-xl md:text-2xl font-bold text-gray-900">
           Quiero ser socio y contribuir mensualmente
         </h2>
       </CardHeader>
 
-      <div className="space-y-5 px-6 md:px-8 pb-8">
+      <div className="space-y-5 px-6 md:px-8">
         <InputsGroup
           formData={formData}
           handleChange={handleChange}
           handleInputChange={handleInputChange}
+          errors={errors}
         />
 
         {/* Select de quién te contó */}
@@ -167,6 +180,8 @@ export default function SubscriptionForm() {
           formData={formData}
           setFormData={setFormData}
           handleChange={handleChange}
+          errors={errors}
+          setErrors={setErrors}
         />
         {/* Radio Group de montos */}
         <div>
@@ -176,11 +191,13 @@ export default function SubscriptionForm() {
             setSelectedAmount={setSelectedAmount}
             customAmount={customAmount}
             setCustomAmount={setCustomAmount}
+            error={errors.customAmount}
+            setError={(msg) => setErrors((prev) => ({ ...prev, customAmount: msg }))}
           />
         </div>
 
         {/* Botón de envío */}
-        <div className="pt-2">
+        <div className="mb-6">
           <ButtonSend isLoading={isLoading} handleSubmit={handleSubmit} />
         </div>
       </div>

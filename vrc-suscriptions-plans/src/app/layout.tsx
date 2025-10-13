@@ -24,7 +24,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      style={{
+        fontFamily:
+          'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+      }}
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

@@ -6,9 +6,11 @@ export default function RadioGroupCustom({
   customAmount,
   setSelectedAmount,
   setCustomAmount,
+  error,
+  setError,
 }) {
   return (
-    <div className="space-y-4 ">
+    <div className="space-y-4 mt-[1rem]">
       <h3 className="text-lg font-semibold text-gray-900">
         Seleccioná un monto
       </h3>
@@ -86,17 +88,24 @@ export default function RadioGroupCustom({
             min={15000}
             placeholder="Ingresá el monto libre (mínimo $15.000)"
             value={customAmount}
-            onChange={(e) => setCustomAmount(e.target.value)}
+            onChange={(e) => {
+              setCustomAmount(e.target.value);
+              if (error) setError(null);
+            }}
             variant="bordered"
             size="lg"
             className="w-full text-center"
             classNames={inputWithSelect}
             required
           />
-          {customAmount && Number(customAmount) <= 14999 && (
-            <span className="text-red-500 text-sm">
-              El monto debe ser mayor a $15.000
-            </span>
+          {error ? (
+            <p className="text-sm text-red-600 mt-1 font-semibold">{error}</p>
+          ) : (
+            customAmount && Number(customAmount) <= 14999 && (
+              <span className="text-red-500 text-sm font-semibold">
+                El monto debe ser mayor a $15.000
+              </span>
+            )
           )}
         </div>
       )}
