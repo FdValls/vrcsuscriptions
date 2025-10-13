@@ -78,18 +78,19 @@ export default function SubscriptionForm() {
       // 🔍 Detectar dispositivo o webview
       const ua = navigator.userAgent.toLowerCase();
       const isIphone = /iphone|ipad|ipod/.test(ua);
+      const isAndroid = /android/.test(ua);
+      const isMobile = isIphone || isAndroid;
       const isWebView = /fbav|instagram|line|twitter/.test(ua);
 
-      // ✅ Intentar abrir un popup placeholder SINCRÓNICAMENTE para evitar bloqueos
-      // Solo para dispositivos/entornos donde queremos una nueva pestaña (Android/desktop)
+      // ✅ Abrir popup placeholder SÓLO en desktop (no en mobile) para evitar about:blank en móviles
+      // Mantendremos el botón cargando hasta que recibamos el init_point
       let popup = null;
       try {
-        if (!isIphone && !isWebView) {
-          // abrir placeholder en el mismo tick del evento de usuario
+        if (!isMobile && !isWebView) {
+          // abrir placeholder en el mismo tick del evento de usuario (evita popup blockers en desktop)
           popup = window.open('about:blank', '_blank', 'noopener');
         }
       } catch (e) {
-        // ignore - fallback handled más abajo
         popup = null;
       }
 
@@ -140,44 +141,32 @@ export default function SubscriptionForm() {
 
       console.log("✅ Suscripción creada y datos enviados al sheet");
 
-      // 🕒 Mostrar loading unos instantes (solo para UX)
-      setTimeout(() => {
-        // ✅ Abrir el link recién cuando ya existe el init_point
-        try {
-          if (popup && !popup.closed) {
-            // Si el placeholder se abrió correctamente, redirigirlo
-            popup.location = data.init_point;
-          } else if (isIphone || isWebView) {
-            // Safari o WebView → redirigir misma pestaña
-            window.location.href = data.init_point;
-          } else {
-            // Fallback: si el popup fue bloqueado o cerrado, navegar en la misma pestaña
-            // (esto evita que el usuario se quede sin poder completar el pago)
-            // Intentamos abrir de nuevo en nueva pestaña como último recurso
-            const reopened = window.open(data.init_point, '_blank');
-            if (!reopened) {
-              // Si tampoco se pudo, forzamos navegación misma pestaña
-              window.location.href = data.init_point;
-            }
-          }
-        } catch (e) {
-          // En casos raros (cross-origin) asignar directamente la ubicación
+      // Cuando tengamos init_point, abrir/redirigir inmediatamente.
+      try {
+        if (!isMobile && popup && !popup.closed) {
+          // Desktop: asignar location del popup (placeholder) para evitar bloqueo
+          popup.location = data.init_point;
+        } else {
+          // Mobile o popup bloqueado: navegar en la misma pestaña
           window.location.href = data.init_point;
         }
+      } catch (e) {
+        // En casos raros, fallback a navegación misma pestaña
+        window.location.href = data.init_point;
+      }
 
-        // 🔄 Resetear formulario y estado
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          whoToldYou: "",
-          whoToldYouCustom: "",
-        });
-        setSelectedAmount("20000");
-        setCustomAmount("");
-        setValue("");
-        setIsLoading(false);
-      }, 1200); // 🕒 Delay de 1.2 segundos solo para mostrar el spinner
+      // 🔄 Resetear estado local (si la navegación no recarga la página)
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        whoToldYou: "",
+        whoToldYouCustom: "",
+      });
+      setSelectedAmount("20000");
+      setCustomAmount("");
+      setValue("");
+      setIsLoading(false);
     } catch (error) {
       console.error("❌ Error en la suscripción:", error);
       alert("Hubo un error al crear la suscripción");
