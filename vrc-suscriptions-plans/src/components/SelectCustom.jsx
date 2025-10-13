@@ -16,7 +16,7 @@ export default function SelectCustom({
     <>
       {/* Select de quién te contó */}
       <div className="flex flex-col min-h-[5rem] mt-4">
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-gray-700 mb-2">
           ¿Quién te contó de VRC? <span className="text-red-500">*</span>
         </label>
         <div className="border-2 border-gray-300 rounded-lg px-3 py-2 bg-white hover:border-gray-400 focus-within:border-green-500 transition-colors">

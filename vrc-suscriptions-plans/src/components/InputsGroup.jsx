@@ -9,7 +9,7 @@ export default function InputsGroup({
   return (
     <>
       <div className="flex flex-col min-h-[5rem] mt-4 ">
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-gray-700 mb-2">
           Nombre y apellido <span className="text-red-500">*</span>
         </label>
         <Input
@@ -30,7 +30,7 @@ export default function InputsGroup({
       </div>
 
       <div className="flex flex-col min-h-[5rem] mt-4">
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-gray-700 mb-2">
           Email <span className="text-red-500">*</span>
         </label>
         <Input
@@ -51,7 +51,7 @@ export default function InputsGroup({
 
       {/* Teléfono y Cómo conociste */}
       <div className="flex flex-col min-h-[5rem] mt-4">
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-gray-700 mb-2">
           Celular <span className="text-red-500">*</span>
         </label>
         <Input
