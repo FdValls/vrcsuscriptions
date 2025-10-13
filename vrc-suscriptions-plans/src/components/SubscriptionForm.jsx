@@ -69,7 +69,7 @@ export default function SubscriptionForm() {
       if (selectedAmount === "custom") {
         const amount = Number(customAmount);
         if (isNaN(amount) || amount <= 14999) {
-          alert("El monto libre debe ser mayor a $15.000");
+          // alert("El monto libre debe ser mayor a $15.000");
           setIsLoading(false);
           return;
         }
@@ -79,6 +79,19 @@ export default function SubscriptionForm() {
       const ua = navigator.userAgent.toLowerCase();
       const isIphone = /iphone|ipad|ipod/.test(ua);
       const isWebView = /fbav|instagram|line|twitter/.test(ua);
+
+      // ✅ Intentar abrir un popup placeholder SINCRÓNICAMENTE para evitar bloqueos
+      // Solo para dispositivos/entornos donde queremos una nueva pestaña (Android/desktop)
+      let popup = null;
+      try {
+        if (!isIphone && !isWebView) {
+          // abrir placeholder en el mismo tick del evento de usuario
+          popup = window.open('about:blank', '_blank', 'noopener');
+        }
+      } catch (e) {
+        // ignore - fallback handled más abajo
+        popup = null;
+      }
 
       // ✅ Crear suscripción
       const res = await fetch("/api/create-suscription", {
@@ -130,12 +143,26 @@ export default function SubscriptionForm() {
       // 🕒 Mostrar loading unos instantes (solo para UX)
       setTimeout(() => {
         // ✅ Abrir el link recién cuando ya existe el init_point
-        if (isIphone || isWebView) {
-          // Safari o WebView → redirigir misma pestaña
+        try {
+          if (popup && !popup.closed) {
+            // Si el placeholder se abrió correctamente, redirigirlo
+            popup.location = data.init_point;
+          } else if (isIphone || isWebView) {
+            // Safari o WebView → redirigir misma pestaña
+            window.location.href = data.init_point;
+          } else {
+            // Fallback: si el popup fue bloqueado o cerrado, navegar en la misma pestaña
+            // (esto evita que el usuario se quede sin poder completar el pago)
+            // Intentamos abrir de nuevo en nueva pestaña como último recurso
+            const reopened = window.open(data.init_point, '_blank');
+            if (!reopened) {
+              // Si tampoco se pudo, forzamos navegación misma pestaña
+              window.location.href = data.init_point;
+            }
+          }
+        } catch (e) {
+          // En casos raros (cross-origin) asignar directamente la ubicación
           window.location.href = data.init_point;
-        } else {
-          // Desktop / Android → abrir nueva pestaña
-          window.open(data.init_point, "_blank");
         }
 
         // 🔄 Resetear formulario y estado
