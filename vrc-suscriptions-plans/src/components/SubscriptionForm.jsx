@@ -82,17 +82,9 @@ export default function SubscriptionForm() {
       const isMobile = isIphone || isAndroid;
       const isWebView = /fbav|instagram|line|twitter/.test(ua);
 
-      // ✅ Abrir popup placeholder SÓLO en desktop (no en mobile) para evitar about:blank en móviles
-      // Mantendremos el botón cargando hasta que recibamos el init_point
-      let popup = null;
-      try {
-        if (!isMobile && !isWebView) {
-          // abrir placeholder en el mismo tick del evento de usuario (evita popup blockers en desktop)
-          popup = window.open('about:blank', '_blank', 'noopener');
-        }
-      } catch (e) {
-        popup = null;
-      }
+      // No abrimos un placeholder para evitar mostrar about:blank inmediatamente.
+      // Mantendremos el botón cargando hasta que recibamos el init_point.
+      let popup = null; // reservado si se necesitara más tarde
 
       // ✅ Crear suscripción
       const res = await fetch("/api/create-suscription", {
@@ -141,17 +133,29 @@ export default function SubscriptionForm() {
 
       console.log("✅ Suscripción creada y datos enviados al sheet");
 
-      // Cuando tengamos init_point, abrir/redirigir inmediatamente.
+      // Cuando tengamos init_point, intentar abrir en nueva pestaña en desktop/Android.
+      // En iPhone o webviews navegamos en la misma pestaña.
       try {
-        if (!isMobile && popup && !popup.closed) {
-          // Desktop: asignar location del popup (placeholder) para evitar bloqueo
-          popup.location = data.init_point;
-        } else {
-          // Mobile o popup bloqueado: navegar en la misma pestaña
+        if (isIphone || isWebView) {
+          // iOS / In-app browsers: redirigir misma pestaña
           window.location.href = data.init_point;
+        } else {
+          // Desktop / Android: intentar abrir nueva pestaña
+          const newWin = window.open(data.init_point, '_blank', 'noopener');
+          if (newWin) {
+            try {
+              newWin.focus();
+            } catch (e) {
+              // ignore focus errors
+            }
+          }
+          //  else {
+          //   // Popup bloqueado: fallback a navegación misma pestaña
+          //   window.location.href = data.init_point;
+          // }
         }
       } catch (e) {
-        // En casos raros, fallback a navegación misma pestaña
+        // Fallback seguro
         window.location.href = data.init_point;
       }
 
