@@ -6,6 +6,7 @@ import RadioGroupCustom from "./RadioGroupCustom";
 import ButtonSend from "./ButtonSend";
 import InputsGroup from "./InputsGroup";
 import SelectCustom from "./SelectCustom";
+import CategorySelector from "./CategorySelector";
 import { validateForm } from "./utils/validation/formSchema";
 
 export default function SubscriptionForm() {
@@ -20,6 +21,7 @@ export default function SubscriptionForm() {
     // howDidYouKnow: "",
     whoToldYou: "",
     whoToldYouCustom: "",
+    camada: "",
   });
   const [errors, setErrors] = useState({});
 
@@ -166,6 +168,7 @@ export default function SubscriptionForm() {
         phone: "",
         whoToldYou: "",
         whoToldYouCustom: "",
+        camada: "",
       });
       setSelectedAmount("20000");
       setCustomAmount("");
@@ -203,6 +206,14 @@ export default function SubscriptionForm() {
           errors={errors}
           setErrors={setErrors}
         />
+
+        {/* Category Selector (Infantil/Juvenil + Camada) */}
+        <CategorySelector
+          formData={formData}
+          setFormData={setFormData}
+          errors={errors}
+        />
+
         {/* Radio Group de montos */}
         <div>
           <RadioGroupCustom
