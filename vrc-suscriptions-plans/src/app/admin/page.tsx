@@ -9,11 +9,22 @@ export default async function AdminPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  const total = donantes?.length ?? 0;
-  const autorizados = donantes?.filter((d) => d.status === "authorized").length ?? 0;
-  const montoMensual = donantes
-    ?.filter((d) => d.status === "authorized")
-    .reduce((acc, d) => acc + (d.amount ?? 0), 0) ?? 0;
+  const activos = donantes?.filter((d) => d.status === "authorized") ?? [];
+  const totalActivos = activos.length;
+  const montoMensual = activos.reduce((acc, d) => acc + (d.amount ?? 0), 0);
+
+  // Agrupar activos por who_told_you
+  const porOrigen = activos.reduce<Record<string, { cantidad: number; monto: number }>>(
+    (acc, d) => {
+      const origen = d.who_told_you || "Sin especificar";
+      if (!acc[origen]) acc[origen] = { cantidad: 0, monto: 0 };
+      acc[origen].cantidad += 1;
+      acc[origen].monto += d.amount ?? 0;
+      return acc;
+    },
+    {}
+  );
+  const origenRows = Object.entries(porOrigen).sort((a, b) => b[1].cantidad - a[1].cantidad);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -23,30 +34,59 @@ export default async function AdminPage() {
           <h1 className="text-lg font-bold text-gray-800">Panel de administración</h1>
         </div>
         <form action={logout}>
-          <button
-            type="submit"
-            className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
-          >
+          <button type="submit" className="text-sm text-gray-500 hover:text-gray-800 transition-colors">
             Cerrar sesión
           </button>
         </form>
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-8 space-y-8">
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <StatCard label="Total donantes" value={total} />
-          <StatCard label="Donantes activos" value={autorizados} />
+
+        {/* Indicadores */}
+        <div className="grid grid-cols-2 gap-4">
+          <StatCard label="Donantes activos" value={totalActivos} />
           <StatCard
             label="Monto mensual"
             value={`$${montoMensual.toLocaleString("es-AR")}`}
           />
         </div>
 
-        {/* Tabla */}
+        {/* Apertura por origen */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-800">Donantes</h2>
+            <h2 className="font-semibold text-gray-800">Por canal de llegada</h2>
+          </div>
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
+              <tr>
+                <th className="px-6 py-3 text-left">¿Quién te contó?</th>
+                <th className="px-6 py-3 text-right">Donantes</th>
+                <th className="px-6 py-3 text-right">Monto mensual</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {origenRows.map(([origen, { cantidad, monto }]) => (
+                <tr key={origen} className="hover:bg-gray-50">
+                  <td className="px-6 py-3 text-gray-800">{origen}</td>
+                  <td className="px-6 py-3 text-right text-gray-900 font-medium">{cantidad}</td>
+                  <td className="px-6 py-3 text-right text-gray-900">${monto.toLocaleString("es-AR")}</td>
+                </tr>
+              ))}
+              {origenRows.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="px-6 py-6 text-center text-gray-400">
+                    No hay donantes activos todavía
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Detalle */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h2 className="font-semibold text-gray-800">Detalle de donantes</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -66,12 +106,8 @@ export default async function AdminPage() {
                     <td className="px-6 py-3 font-medium text-gray-900">{d.name}</td>
                     <td className="px-6 py-3 text-gray-600">{d.email}</td>
                     <td className="px-6 py-3 text-gray-600">{d.phone}</td>
-                    <td className="px-6 py-3 text-gray-900">
-                      ${Number(d.amount).toLocaleString("es-AR")}
-                    </td>
-                    <td className="px-6 py-3">
-                      <StatusBadge status={d.status} />
-                    </td>
+                    <td className="px-6 py-3 text-gray-900">${Number(d.amount).toLocaleString("es-AR")}</td>
+                    <td className="px-6 py-3"><StatusBadge status={d.status} /></td>
                     <td className="px-6 py-3 text-gray-500">
                       {new Date(d.created_at).toLocaleDateString("es-AR")}
                     </td>
@@ -88,6 +124,7 @@ export default async function AdminPage() {
             </table>
           </div>
         </div>
+
       </main>
     </div>
   );
@@ -116,9 +153,7 @@ function StatusBadge({ status }: { status: string }) {
     cancelled: "Cancelado",
   };
   return (
-    <span
-      className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] ?? "bg-gray-100 text-gray-600"}`}
-    >
+    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] ?? "bg-gray-100 text-gray-600"}`}>
       {labels[status] ?? status}
     </span>
   );
