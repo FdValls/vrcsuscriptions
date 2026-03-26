@@ -37,18 +37,27 @@ function validateSignature(req: Request, rawBody: string): boolean {
 export async function POST(req: Request) {
   try {
     const rawBody = await req.text();
-    const body = JSON.parse(rawBody);
-    const { type, data } = body;
+    const url = new URL(req.url);
+    console.log("[mp-webhook] body:", rawBody);
+    console.log("[mp-webhook] query params:", url.searchParams.toString());
+
+    const body = rawBody ? JSON.parse(rawBody) : {};
+    const { type: bodyType, data } = body;
+
+    // MP a veces manda type y data.id en query params en lugar del body
+    const type = bodyType ?? url.searchParams.get("type");
+    const subscriptionId = data?.id ?? url.searchParams.get("data.id");
 
     if (
       type !== "subscription_preapproval" &&
       type !== "subscription_authorized_payment"
     ) {
+      console.log("[mp-webhook] tipo ignorado:", type);
       return NextResponse.json({ received: true });
     }
 
-    const subscriptionId = data?.id;
     if (!subscriptionId) {
+      console.log("[mp-webhook] sin subscriptionId");
       return NextResponse.json({ received: true });
     }
 
