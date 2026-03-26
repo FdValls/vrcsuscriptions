@@ -37,12 +37,6 @@ function validateSignature(req: Request, rawBody: string): boolean {
 export async function POST(req: Request) {
   try {
     const rawBody = await req.text();
-
-    if (!validateSignature(req, rawBody)) {
-      console.warn("[mp-webhook] Firma inválida, request rechazado");
-      return NextResponse.json({ received: true });
-    }
-
     const body = JSON.parse(rawBody);
     const { type, data } = body;
 
