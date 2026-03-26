@@ -1,17 +1,51 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createHmac } from "crypto";
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_ANON_KEY!
 );
 
+function validateSignature(req: Request, rawBody: string): boolean {
+  const secret = process.env.MP_WEBHOOK_SECRET;
+  if (!secret) return false;
+
+  const xSignature = req.headers.get("x-signature");
+  const xRequestId = req.headers.get("x-request-id");
+  const url = new URL(req.url);
+  const dataId = url.searchParams.get("data.id");
+
+  if (!xSignature) return false;
+
+  // Extraer ts y v1 del header x-signature
+  const parts = Object.fromEntries(
+    xSignature.split(",").map((p) => p.split("=") as [string, string])
+  );
+  const ts = parts["ts"];
+  const v1 = parts["v1"];
+
+  if (!ts || !v1) return false;
+
+  // Construir el manifest según la doc de MP
+  const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
+  const hash = createHmac("sha256", secret).update(manifest).digest("hex");
+
+  return hash === v1;
+}
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const rawBody = await req.text();
+
+    if (!validateSignature(req, rawBody)) {
+      console.warn("[mp-webhook] Firma inválida, request rechazado");
+      return NextResponse.json({ received: true });
+    }
+
+    const body = JSON.parse(rawBody);
     const { type, data } = body;
 
-    // MP manda distintos tipos de eventos, solo nos interesan estos dos
     if (
       type !== "subscription_preapproval" &&
       type !== "subscription_authorized_payment"
@@ -40,9 +74,8 @@ export async function POST(req: Request) {
     }
 
     const subscription = await mpRes.json();
-    const status = subscription.status; // "authorized", "paused", "cancelled", "pending"
+    const status = subscription.status;
 
-    // Actualizamos el status en Supabase buscando por el id de suscripción
     const { error } = await supabase
       .from("donantes")
       .update({ status })
@@ -50,6 +83,8 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error("[mp-webhook] Error actualizando Supabase:", error.message);
+    } else {
+      console.log(`[mp-webhook] Suscripción ${subscriptionId} → ${status}`);
     }
 
     return NextResponse.json({ received: true });
