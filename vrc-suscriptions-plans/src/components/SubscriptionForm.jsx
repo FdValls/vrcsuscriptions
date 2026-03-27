@@ -120,7 +120,7 @@ export default function SubscriptionForm() {
       // ✅ Enviar datos a la Sheet
       const { whoToldYouCustom, whoToldYou, ...restFormData } = formData;
 
-      await fetch("/api/save-to-sheet", {
+      await fetch("/api/save-to-supabase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
