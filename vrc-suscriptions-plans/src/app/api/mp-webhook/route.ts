@@ -2,11 +2,6 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createHmac } from "crypto";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
-
 function validateSignature(req: Request, rawBody: string): boolean {
   const secret = process.env.MP_WEBHOOK_SECRET;
   if (!secret) return false;
@@ -35,6 +30,10 @@ function validateSignature(req: Request, rawBody: string): boolean {
 }
 
 export async function POST(req: Request) {
+  const supabase = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!
+  );
   try {
     const rawBody = await req.text();
     const url = new URL(req.url);
