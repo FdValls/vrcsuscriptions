@@ -24,7 +24,7 @@ export default function RadioGroupCustom({
         }}
       >
         <div className="flex flex-col items-center">
-          <p>Infantiles</p>
+          {/* <p>Infantiles</p> */}
           <Radio
             value="20000"
             classNames={{
@@ -41,7 +41,7 @@ export default function RadioGroupCustom({
           </Radio>
         </div>
         <div className="flex flex-col items-center">
-          <p>Juveniles</p>
+          {/* <p>Juveniles</p> */}
           <Radio
             value="40000"
             classNames={{
@@ -58,7 +58,7 @@ export default function RadioGroupCustom({
           </Radio>
         </div>
         <div className="flex flex-col items-center">
-          <p>Plantel Superior</p>
+          {/* <p>Plantel Superior</p> */}
           <Radio
             value="60000"
             classNames={{
@@ -80,7 +80,7 @@ export default function RadioGroupCustom({
             classNames={{
               // base: "bg-white w-[10rem] p-1 h-[3rem] border border-gray-300 hover:border-green-400 rounded-lg transition-colors",
               base: [
-                "flex-col p-[5px] w-[10rem] p-1 h-[3rem] border border-gray-300 rounded-lg transition-colors mt-[24px]",
+                "flex-col p-[5px] w-[10rem] p-1 h-[3rem] border border-gray-300 rounded-lg transition-colors",
                 // aplica estilos según si está seleccionado o no
                 "data-[selected=true]:bg-emerald-50 data-[selected=true]:border-green-500 data-[selected=true]:border-2",
                 "data-[selected=false]:bg-white data-[selected=false]:border-gray-300 hover:border-green-400",

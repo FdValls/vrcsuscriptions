@@ -208,11 +208,11 @@ export default function SubscriptionForm() {
         />
 
         {/* Category Selector (Infantil/Juvenil + Camada) */}
-        <CategorySelector
+        {/* <CategorySelector
           formData={formData}
           setFormData={setFormData}
           errors={errors}
-        />
+        /> */}
 
         {/* Radio Group de montos */}
         <div>
