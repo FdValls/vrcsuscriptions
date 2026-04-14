@@ -1,6 +1,6 @@
 import { Button } from "@heroui/react";
 
-export default function ButtonSend({ isLoading, handleSubmit }) {
+export default function ButtonSend({ isLoading, handleSubmit, isDisabled = false }) {
   return (
     <>
       {/* Botón de envío */}
@@ -8,6 +8,7 @@ export default function ButtonSend({ isLoading, handleSubmit }) {
         <Button
           type="button"
           isLoading={isLoading}
+          isDisabled={isDisabled}
           color="secondary"
           onPress={handleSubmit}
           className="flex gap-[1rem] w-[60%] bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 text-lg rounded-lg transition-colors justify-space"

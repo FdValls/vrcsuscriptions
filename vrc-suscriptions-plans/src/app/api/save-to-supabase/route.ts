@@ -20,14 +20,35 @@ export async function POST(req: Request) {
       );
     }
 
-    const { error } = await supabase.from("donantes").insert({
+    const record: Record<string, unknown> = {
       name: data.name,
       email: data.email,
       phone: data.phone,
       who_told_you: data.whoToldYou,
       amount: Number(data.monto),
       mp_subscription_id: data.id_suscription,
-    });
+    };
+
+    const optionalFields: Record<string, string> = {
+      camada: "camada",
+      categoria: "categoria",
+      jugadorNombre: "jugador_nombre",
+      jugadorDni: "jugador_dni",
+      jugadorFechaNac: "jugador_fecha_nac",
+      jugadorDireccion: "jugador_direccion",
+      jugadorTelefono: "jugador_telefono",
+      padreNombre: "padre_nombre",
+      padreDni: "padre_dni",
+      padreFechaNac: "padre_fecha_nac",
+      padreDireccion: "padre_direccion",
+      padreTelefono: "padre_telefono",
+    };
+
+    for (const [dataKey, dbCol] of Object.entries(optionalFields)) {
+      if (data[dataKey]) record[dbCol] = data[dataKey];
+    }
+
+    const { error } = await supabase.from("donantes").insert(record);
 
     if (error) {
       console.error("[SaveToSupabase] Error:", error);

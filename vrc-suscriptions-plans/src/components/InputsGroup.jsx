@@ -1,10 +1,10 @@
 import { Input } from "@heroui/react";
 import inputClasses from "./utils/styles/inputClasses";
 
-export default function InputsGroup({ formData, handleInputChange }) {
+export default function InputsGroup({ formData, handleInputChange, errors = {} }) {
   return (
     <>
-      <div className="grid grid-cols-1  gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
             Nombre y apellido <span className="text-red-500">*</span>
@@ -15,6 +15,8 @@ export default function InputsGroup({ formData, handleInputChange }) {
             onChange={(e) => handleInputChange("name", e.target.value)}
             variant="bordered"
             classNames={inputClasses}
+            isInvalid={!!errors.name}
+            errorMessage={errors.name}
             required
           />
         </div>
@@ -30,12 +32,13 @@ export default function InputsGroup({ formData, handleInputChange }) {
             onChange={(e) => handleInputChange("email", e.target.value)}
             variant="bordered"
             classNames={inputClasses}
+            isInvalid={!!errors.email}
+            errorMessage={errors.email}
             required
           />
         </div>
       </div>
 
-      {/* Teléfono y Cómo conociste */}
       <div className="grid grid-cols-1 gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
@@ -48,23 +51,11 @@ export default function InputsGroup({ formData, handleInputChange }) {
             onChange={(e) => handleInputChange("phone", e.target.value)}
             variant="bordered"
             classNames={inputClasses}
+            isInvalid={!!errors.phone}
+            errorMessage={errors.phone}
             required
           />
         </div>
-
-        {/* <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            ¿Cómo conociste VRC? <span className="text-red-500">*</span>
-          </label>
-          <Input
-            value={formData.howDidYouKnow}
-            placeholder="Ej: Evento, amigo, redes sociales..."
-            onChange={(e) => handleInputChange("howDidYouKnow", e.target.value)}
-            variant="bordered"
-            classNames={inputClasses}
-            required
-          />
-        </div> */}
       </div>
     </>
   );
