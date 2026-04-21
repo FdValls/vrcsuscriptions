@@ -1,12 +1,7 @@
 import { Input } from "@heroui/react";
 import inputClasses from "./utils/styles/inputClasses";
 
-/**
- * Renderiza un grupo de campos de persona (nombre, DNI, fecha nac, dirección, teléfono).
- * @param {string} prefix  - prefijo de clave en formData: "jugador" | "padre"
- * @param {string} title   - título de la sección
- */
-export default function PersonFields({ prefix, title, formData, handleInputChange, errors }) {
+export default function PersonFields({ prefix, title, formData, handleInputChange, errors, showEmail = false }) {
   const field = (name) => `${prefix}${name}`;
 
   return (
@@ -30,6 +25,24 @@ export default function PersonFields({ prefix, title, formData, handleInputChang
             errorMessage={errors?.[field("Nombre")]}
           />
         </div>
+
+        {showEmail && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">
+              Email <span className="text-red-500">*</span>
+            </label>
+            <Input
+              type="email"
+              value={formData[field("Email")] || ""}
+              placeholder="Ingresá el email"
+              onChange={(e) => handleInputChange(field("Email"), e.target.value)}
+              variant="bordered"
+              classNames={inputClasses}
+              isInvalid={!!errors?.[field("Email")]}
+              errorMessage={errors?.[field("Email")]}
+            />
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">

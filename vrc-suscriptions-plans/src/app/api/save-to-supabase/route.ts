@@ -20,10 +20,11 @@ export async function POST(req: Request) {
       );
     }
 
+    const isMinor = data.categoria === "infantil" || data.categoria === "juvenil";
     const record: Record<string, unknown> = {
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
+      name: isMinor ? data.padreNombre : data.jugadorNombre,
+      email: isMinor ? data.padreEmail : data.jugadorEmail,
+      phone: isMinor ? data.padreTelefono : data.jugadorTelefono,
       who_told_you: data.whoToldYou,
       amount: Number(data.monto),
       mp_subscription_id: data.id_suscription,
@@ -33,11 +34,13 @@ export async function POST(req: Request) {
       camada: "camada",
       categoria: "categoria",
       jugadorNombre: "jugador_nombre",
+      jugadorEmail: "jugador_email",
       jugadorDni: "jugador_dni",
       jugadorFechaNac: "jugador_fecha_nac",
       jugadorDireccion: "jugador_direccion",
       jugadorTelefono: "jugador_telefono",
       padreNombre: "padre_nombre",
+      padreEmail: "padre_email",
       padreDni: "padre_dni",
       padreFechaNac: "padre_fecha_nac",
       padreDireccion: "padre_direccion",

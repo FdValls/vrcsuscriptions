@@ -3,20 +3,17 @@
 import React, { useState } from "react";
 import { Card, CardHeader, Input, Radio, RadioGroup } from "@heroui/react";
 import ButtonSend from "./ButtonSend";
-import InputsGroup from "./InputsGroup";
 import SelectCustom from "./SelectCustom";
 import CategorySelector from "./CategorySelector";
 import PersonFields from "./PersonFields";
 import { validateJugadoresForm } from "./utils/validation/jugadoresFormSchema";
 import { categoryAmounts } from "./utils/mocks/categories";
 
-// Orden de secciones para scroll-to-error (debe coincidir con los id del DOM)
 const SECTION_ORDER = [
-  { id: "section-contact",    keys: ["name", "email", "phone"] },
-  { id: "section-whoToldYou", keys: ["whoToldYou", "whoToldYouCustom"] },
   { id: "section-camada",     keys: ["camada", "categoryType"] },
-  { id: "section-padre",      keys: ["padreNombre", "padreDni", "padreFechaNac", "padreDireccion", "padreTelefono"] },
-  { id: "section-jugador",    keys: ["jugadorNombre", "jugadorDni", "jugadorFechaNac", "jugadorDireccion", "jugadorTelefono"] },
+  { id: "section-jugador",    keys: ["jugadorNombre", "jugadorEmail", "jugadorDni", "jugadorFechaNac", "jugadorDireccion", "jugadorTelefono"] },
+  { id: "section-padre",      keys: ["padreNombre", "padreEmail", "padreDni", "padreFechaNac", "padreDireccion", "padreTelefono"] },
+  { id: "section-whoToldYou", keys: ["whoToldYou", "whoToldYouCustom"] },
   { id: "section-amount",     keys: ["selectedAmount", "customAmount"] },
 ];
 
@@ -30,11 +27,10 @@ const scrollToFirstError = (errors) => {
 };
 
 const INITIAL_FORM = {
-  name: "", email: "", phone: "",
-  whoToldYou: "", whoToldYouCustom: "",
   camada: "", customAmount: "",
-  jugadorNombre: "", jugadorDni: "", jugadorFechaNac: "", jugadorDireccion: "", jugadorTelefono: "",
-  padreNombre: "",  padreDni: "",  padreFechaNac: "",  padreDireccion: "",  padreTelefono: "",
+  whoToldYou: "", whoToldYouCustom: "",
+  jugadorNombre: "", jugadorEmail: "", jugadorDni: "", jugadorFechaNac: "", jugadorDireccion: "", jugadorTelefono: "",
+  padreNombre: "",  padreEmail: "",  padreDni: "",  padreFechaNac: "",  padreDireccion: "",  padreTelefono: "",
 };
 
 const AMOUNT_LABELS = { "20000": "$20.000", "40000": "$40.000", "60000": "$60.000" };
@@ -53,7 +49,7 @@ export default function JugadoresForm() {
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState(INITIAL_FORM);
 
-  const handleChange = (e) => {
+  const handleWhoToldYouChange = (e) => {
     setFormData((prev) => ({ ...prev, whoToldYou: e.target.value }));
     setErrors((prev) => { const c = { ...prev }; delete c.whoToldYou; return c; });
   };
@@ -70,7 +66,7 @@ export default function JugadoresForm() {
     if (category === "plantel") {
       setErrors((prev) => {
         const c = { ...prev };
-        ["padreNombre","padreDni","padreFechaNac","padreDireccion","padreTelefono"].forEach((k) => delete c[k]);
+        ["padreNombre","padreEmail","padreDni","padreFechaNac","padreDireccion","padreTelefono"].forEach((k) => delete c[k]);
         return c;
       });
     }
@@ -97,6 +93,8 @@ export default function JugadoresForm() {
   const handleSubmit = async () => {
     setIsLoading(true);
 
+    const needsPadreFields = categoryType === "infantil" || categoryType === "juvenil";
+
     const { valid, errors: validationErrors } = validateJugadoresForm({
       ...formData,
       customAmount,
@@ -118,6 +116,7 @@ export default function JugadoresForm() {
       const isIphone = /iphone|ipad|ipod/.test(ua);
       const isWebView = /fbav|instagram|line|twitter/.test(ua);
       const transactionAmount = Number(selectedAmount === "custom" ? customAmount : selectedAmount);
+      const payerEmail = needsPadreFields ? formData.padreEmail : formData.jugadorEmail;
 
       const res = await fetch("/api/create-suscription", {
         method: "POST",
@@ -125,7 +124,7 @@ export default function JugadoresForm() {
         body: JSON.stringify({
           reason: "Virreyes Rugby Club",
           external_reference: "VRC-1234",
-          payer_email: formData.email,
+          payer_email: payerEmail,
           auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: transactionAmount, currency_id: "ARS" },
           back_url: "https://www.mercadopago.com.ar",
         }),
@@ -184,26 +183,6 @@ export default function JugadoresForm() {
 
       <div className="space-y-6 px-6 md:px-8 pb-8">
 
-        <div id="section-contact">
-          <InputsGroup
-            formData={formData}
-            handleChange={handleChange}
-            handleInputChange={handleInputChange}
-            errors={errors}
-          />
-        </div>
-
-        <div id="section-whoToldYou">
-          <SelectCustom
-            whoToldYouCustom={formData.whoToldYouCustom}
-            formData={formData}
-            setFormData={setFormData}
-            handleChange={handleChange}
-            errors={errors}
-            setErrors={setErrors}
-          />
-        </div>
-
         <div id="section-camada">
           <CategorySelector
             setFormData={setFormData}
@@ -211,18 +190,6 @@ export default function JugadoresForm() {
             errors={errors}
           />
         </div>
-
-        {needsPadreFields && (
-          <div id="section-padre">
-            <PersonFields
-              prefix="padre"
-              title="Datos del padre / madre / tutor"
-              formData={formData}
-              handleInputChange={handleInputChange}
-              errors={errors}
-            />
-          </div>
-        )}
 
         {categoryType && (
           <div id="section-jugador">
@@ -232,11 +199,37 @@ export default function JugadoresForm() {
               formData={formData}
               handleInputChange={handleInputChange}
               errors={errors}
+              showEmail={!needsPadreFields}
             />
           </div>
         )}
 
-        {/* Selección de monto — siempre al final, visible solo si hay categoría */}
+        {needsPadreFields && (
+          <div id="section-padre">
+            <PersonFields
+              prefix="padre"
+              title="Datos del padre / madre / tutor"
+              formData={formData}
+              handleInputChange={handleInputChange}
+              errors={errors}
+              showEmail={true}
+            />
+          </div>
+        )}
+
+        {categoryType && (
+          <div id="section-whoToldYou">
+            <SelectCustom
+              whoToldYouCustom={formData.whoToldYouCustom}
+              formData={formData}
+              setFormData={setFormData}
+              handleChange={handleWhoToldYouChange}
+              errors={errors}
+              setErrors={setErrors}
+            />
+          </div>
+        )}
+
         {categoryType && (
           <div id="section-amount" className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Seleccioná un monto</h3>
