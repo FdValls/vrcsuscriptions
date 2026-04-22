@@ -19,20 +19,16 @@ export async function POST(req: Request) {
     });
 
     if (!response.ok) {
-      let errorMessage = `HTTP error! status: ${response.status}`;
+      let mpError = "";
       try {
-        const errorBody = await response.text();
-        if (errorBody) {
-          errorMessage += ` - ${errorBody}`;
-        }
+        mpError = await response.text();
       } catch {
         // ignore parse errors
       }
-      console.error(`[ErrorCreatePlan] ${errorMessage}`);
-      // return NextResponse.json({ error: errorMessage }, { status: response.status });
+      console.error(`[ErrorCreatePlan] status:${response.status} - ${mpError}`);
       return NextResponse.json(
-        { error: "Error creando suscripción revise los datos ingresados" },
-        { status: 404 }
+        { error: mpError || "Error creando suscripción revise los datos ingresados" },
+        { status: response.status }
       );
     }
 

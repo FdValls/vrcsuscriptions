@@ -1,11 +1,5 @@
-import LandingHeader from "@/components/LandingHeader";
-import SubscriptionForm from "@/components/SubscriptionForm";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-    return (
-        <div >
-            <LandingHeader />
-            <SubscriptionForm />
-        </div>
-    );
+  redirect("/aportantes");
 }
