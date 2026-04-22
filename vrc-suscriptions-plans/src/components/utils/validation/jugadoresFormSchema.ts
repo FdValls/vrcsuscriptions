@@ -70,11 +70,9 @@ const JugadoresFormSchema = z
         });
       }
     }
-    // Jugador plantel: email requerido (el jugador es el pagador)
-    if (data.categoryType === "plantel") {
-      if (!data.jugadorEmail?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.jugadorEmail)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Ingresá un email válido", path: ["jugadorEmail"] });
-      }
+    // Email del jugador requerido en todas las categorías
+    if (!data.jugadorEmail?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.jugadorEmail)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Ingresá un email válido", path: ["jugadorEmail"] });
     }
     // Padre requerido para infantil y juvenil
     if (data.categoryType === "infantil" || data.categoryType === "juvenil") {

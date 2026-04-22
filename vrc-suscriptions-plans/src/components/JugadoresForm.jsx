@@ -158,12 +158,7 @@ export default function JugadoresForm() {
       setTimeout(() => {
         if (isIphone || isWebView) window.location.href = data.init_point;
         else window.open(data.init_point, "_blank");
-        setFormData(INITIAL_FORM);
-        setSelectedAmount("");
-        setCustomAmount("");
-        setCategoryType(null);
-        setErrors({});
-        setIsLoading(false);
+        window.location.reload();
       }, 1200);
     } catch {
       alert("Hubo un error al crear la suscripción");
@@ -200,7 +195,7 @@ export default function JugadoresForm() {
               formData={formData}
               handleInputChange={handleInputChange}
               errors={errors}
-              showEmail={!needsPadreFields}
+              showEmail={true}
             />
           </div>
         )}
