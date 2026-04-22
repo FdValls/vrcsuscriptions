@@ -150,6 +150,7 @@ export default function JugadoresForm() {
             monto: transactionAmount,
             categoria: categoryType,
             id_suscription: data.subscription_id,
+            origen: "jugador",
           },
         }),
       });

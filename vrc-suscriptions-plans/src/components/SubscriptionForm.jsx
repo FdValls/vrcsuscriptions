@@ -109,6 +109,7 @@ export default function SubscriptionForm() {
             whoToldYou: whoToldYou === "Otro" ? whoToldYouCustom : whoToldYou,
             monto: selectedAmount === "custom" ? customAmount : selectedAmount,
             id_suscription: data.subscription_id,
+            origen: "donante",
           },
         }),
       });
