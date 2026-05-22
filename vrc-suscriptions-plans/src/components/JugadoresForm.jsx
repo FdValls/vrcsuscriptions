@@ -3,18 +3,16 @@
 import React, { useState } from "react";
 import { Card, CardHeader, Input, Radio, RadioGroup } from "@heroui/react";
 import ButtonSend from "./ButtonSend";
-import SelectCustom from "./SelectCustom";
 import CategorySelector from "./CategorySelector";
 import PersonFields from "./PersonFields";
 import { validateJugadoresForm } from "./utils/validation/jugadoresFormSchema";
 import { categoryAmounts } from "./utils/mocks/categories";
 
 const SECTION_ORDER = [
-  { id: "section-camada",     keys: ["camada", "categoryType"] },
-  { id: "section-jugador",    keys: ["jugadorNombre", "jugadorEmail", "jugadorDni", "jugadorFechaNac", "jugadorDireccion", "jugadorTelefono"] },
-  { id: "section-padre",      keys: ["padreNombre", "padreEmail", "padreDni", "padreFechaNac", "padreDireccion", "padreTelefono"] },
-  { id: "section-whoToldYou", keys: ["whoToldYou", "whoToldYouCustom"] },
-  { id: "section-amount",     keys: ["selectedAmount", "customAmount"] },
+  { id: "section-camada",  keys: ["camada", "categoryType"] },
+  { id: "section-jugador", keys: ["jugadorNombre", "jugadorEmail", "jugadorDni", "jugadorFechaNac", "jugadorDireccion", "jugadorTelefono"] },
+  { id: "section-padre",   keys: ["padreNombre", "padreEmail", "padreDni", "padreFechaNac", "padreDireccion", "padreTelefono"] },
+  { id: "section-amount",  keys: ["selectedAmount", "customAmount"] },
 ];
 
 const scrollToFirstError = (errors) => {
@@ -28,7 +26,6 @@ const scrollToFirstError = (errors) => {
 
 const INITIAL_FORM = {
   camada: "", customAmount: "",
-  whoToldYou: "", whoToldYouCustom: "",
   jugadorNombre: "", jugadorEmail: "", jugadorDni: "", jugadorFechaNac: "", jugadorDireccion: "", jugadorTelefono: "",
   padreNombre: "",  padreEmail: "",  padreDni: "",  padreFechaNac: "",  padreDireccion: "",  padreTelefono: "",
 };
@@ -48,11 +45,6 @@ export default function JugadoresForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState(INITIAL_FORM);
-
-  const handleWhoToldYouChange = (e) => {
-    setFormData((prev) => ({ ...prev, whoToldYou: e.target.value }));
-    setErrors((prev) => { const c = { ...prev }; delete c.whoToldYou; return c; });
-  };
 
   const handleInputChange = (field, val) => {
     setFormData((prev) => ({ ...prev, [field]: val }));
@@ -138,15 +130,12 @@ export default function JugadoresForm() {
         return;
       }
 
-      const { whoToldYouCustom, whoToldYou, ...restFormData } = formData;
-
       await fetch("/api/save-to-supabase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data: {
-            ...restFormData,
-            whoToldYou: whoToldYou === "Otro" ? whoToldYouCustom : whoToldYou,
+            ...formData,
             monto: transactionAmount,
             categoria: categoryType,
             id_suscription: data.subscription_id,
@@ -195,7 +184,7 @@ export default function JugadoresForm() {
               formData={formData}
               handleInputChange={handleInputChange}
               errors={errors}
-              showEmail={true}
+              showEmail={categoryType !== "infantil"}
             />
           </div>
         )}
@@ -209,19 +198,6 @@ export default function JugadoresForm() {
               handleInputChange={handleInputChange}
               errors={errors}
               showEmail={true}
-            />
-          </div>
-        )}
-
-        {categoryType && (
-          <div id="section-whoToldYou">
-            <SelectCustom
-              whoToldYouCustom={formData.whoToldYouCustom}
-              formData={formData}
-              setFormData={setFormData}
-              handleChange={handleWhoToldYouChange}
-              errors={errors}
-              setErrors={setErrors}
             />
           </div>
         )}
