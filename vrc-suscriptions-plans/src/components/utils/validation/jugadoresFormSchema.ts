@@ -1,7 +1,4 @@
 import { z } from "zod";
-import options from "../mocks/options";
-
-const WhoToldYouEnum = z.enum(options.map((o) => String(o)) as [string, ...string[]]);
 
 const JugadoresFormSchema = z
   .object({
@@ -11,9 +8,6 @@ const JugadoresFormSchema = z
       .enum(["infantil", "juvenil", "plantel"])
       .nullable()
       .refine((v) => v !== null, { message: "Seleccioná una camada" }),
-    // ¿Quién te contó?
-    whoToldYou: z.union([WhoToldYouEnum, z.literal("")]),
-    whoToldYouCustom: z.string().optional(),
     // Monto
     selectedAmount: z.string(),
     customAmount: z.string().optional(),
@@ -39,20 +33,6 @@ const JugadoresFormSchema = z
     padreTelefono: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    if (!data.whoToldYou) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Por favor, seleccioná una opción",
-        path: ["whoToldYou"],
-      });
-    }
-    if (data.whoToldYou === "Otro" && !data.whoToldYouCustom?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Por favor, ingresá quién te contó de VRC",
-        path: ["whoToldYouCustom"],
-      });
-    }
     if (!data.selectedAmount) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -70,16 +50,10 @@ const JugadoresFormSchema = z
         });
       }
     }
-    // Email del jugador requerido en todas las categorías
-    if (!data.jugadorEmail?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.jugadorEmail)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Ingresá un email válido", path: ["jugadorEmail"] });
-    }
     // Padre requerido para infantil y juvenil
     if (data.categoryType === "infantil" || data.categoryType === "juvenil") {
       if (!data.padreNombre?.trim())
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Ingresá nombre y apellido", path: ["padreNombre"] });
-      if (!data.padreEmail?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.padreEmail))
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Ingresá un email válido", path: ["padreEmail"] });
       if (!data.padreDni?.trim() || !/^\d{7,8}$/.test(data.padreDni))
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El DNI debe tener 7 u 8 dígitos", path: ["padreDni"] });
       if (!data.padreFechaNac?.trim())

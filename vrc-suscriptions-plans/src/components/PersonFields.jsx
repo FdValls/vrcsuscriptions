@@ -29,7 +29,7 @@ export default function PersonFields({ prefix, title, formData, handleInputChang
         {showEmail && (
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
-              Email <span className="text-red-500">*</span>
+              Email
             </label>
             <Input
               type="email"
